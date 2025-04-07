@@ -1,0 +1,30 @@
+# Source
+src/
+
+# Config files
+.eslintrc
+.eslintrc.js
+eslint.config.mjs
+tsconfig.json
+.prettierrc
+.prettierignore
+.github
+.vscode
+
+# Tests
+tests/
+**/*.spec.ts
+**/*.test.ts
+
+# Documentation source
+docs-src/
+
+# Development tools
+node_modules/
+.editorconfig
+.gitignore
+.npmignore
+.travis.yml
+.gitlab-ci.yml
+.github/
+vitest.config.ts
