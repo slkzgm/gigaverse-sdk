@@ -1,9 +1,8 @@
 // path: src/index.ts
 
 /**
- * Entry point that re-exports the main functionalities of our SDK.
+ * Exports the main parts of the SDK for external usage.
  */
-
 export * from "./client/GameClient";
 export * from "./client/types/requests";
 export * from "./client/types/responses";

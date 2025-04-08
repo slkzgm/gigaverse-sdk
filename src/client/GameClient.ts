@@ -3,28 +3,31 @@
 import { HttpClient } from "./HttpClient";
 import { logger } from "../utils/logger";
 
-// Request payloads
 import {
   ActionPayload,
   ClaimEnergyPayload,
   StartRunPayload,
 } from "./types/requests";
 
-// Response payloads
 import {
   ActionResponse,
-  ActionResponseData,
   ClaimEnergyResponse,
   GetAllEnemiesResponse,
   GetAllGameItemsResponse,
   GetDungeonStateResponse,
   GetUserRomsResponse,
   StartRunResponse,
+  GetUserMeResponse,
+  GetNoobsResponse,
+  GetUsernamesResponse,
+  GetFactionResponse,
+  GetBalancesResponse,
+  GetSkillsProgressResponse,
+  GetConsumablesResponse,
 } from "./types/responses";
 
 /**
- * The GameClient class is our main "SDK" interface.
- * It exposes methods for each game action, ensuring consistent usage.
+ * Main SDK class exposing methods for dungeon runs, user data, items, etc.
  */
 export class GameClient {
   private httpClient: HttpClient;
@@ -33,8 +36,6 @@ export class GameClient {
   constructor(baseUrl: string, authToken: string) {
     this.httpClient = new HttpClient(baseUrl, authToken);
   }
-
-  // --- Utilities / State Management ---
 
   public setAuthToken(newToken: string) {
     this.httpClient.setAuthToken(newToken);
@@ -48,36 +49,28 @@ export class GameClient {
     this.currentActionToken = token;
   }
 
-  // ---------------------------------------------------------
-  //                 Existing Methods
-  // ---------------------------------------------------------
-
   /**
-   * Claim energy/shard/dust if necessary to start a new run or gather resources.
-   * E.g., payload.claimId = "energy" / "shard" / "dust"
+   * Claims a resource like "energy", "shard", or "dust".
    */
   public async claimEnergy(
     payload: ClaimEnergyPayload
   ): Promise<ClaimEnergyResponse> {
-    logger.info("Attempting to claim resource...");
+    logger.info("Claiming resource...");
     const endpoint = "/api/roms/factory/claim";
-
     const response = await this.httpClient.post<ClaimEnergyResponse>(
       endpoint,
       payload
     );
-    logger.info(`Claim response => success: ${response.success}`);
+    logger.info(`Claim result => success: ${response.success}`);
     return response;
   }
 
   /**
-   * Start a run. We'll automatically store the returned actionToken.
+   * Starts a dungeon run, storing the returned actionToken automatically.
    */
   public async startRun(payload: StartRunPayload): Promise<StartRunResponse> {
     logger.info("Starting dungeon run...");
     const endpoint = "/api/game/dungeon/action";
-
-    // The backend expects "action":"start_run"
     const body = {
       action: "start_run",
       actionToken: payload.actionToken,
@@ -89,125 +82,170 @@ export class GameClient {
       endpoint,
       body
     );
-
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
-      logger.info(`Updated action token -> ${response.actionToken}`);
+      logger.info(`New action token: ${response.actionToken}`);
     }
     return response;
   }
 
   /**
-   * Perform an action (rock/paper/scissor/loot_x/etc.) in the run loop.
-   * Also can contain gameItemBalanceChanges in the response for drops.
+   * Performs a move or loot action.
+   * Action can be "rock", "paper", "scissor", "loot_one", etc.
    */
   public async playMove(payload: ActionPayload): Promise<ActionResponse> {
-    logger.info(`Performing action -> ${payload.action}`);
+    logger.info(`Performing action: ${payload.action}`);
     const endpoint = "/api/game/dungeon/action";
 
-    const finalActionToken = payload.actionToken ?? this.getActionToken() ?? "";
+    const finalToken = payload.actionToken ?? this.currentActionToken ?? "";
     const body = {
       action: payload.action,
-      actionToken: finalActionToken,
+      actionToken: finalToken,
       dungeonId: payload.dungeonId,
       data: payload.data,
     };
 
     const response = await this.httpClient.post<ActionResponse>(endpoint, body);
-
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
-      logger.info(`New action token -> ${response.actionToken}`);
+      logger.info(`Updated action token: ${response.actionToken}`);
     }
-    if (
-      response.gameItemBalanceChanges &&
-      response.gameItemBalanceChanges.length > 0
-    ) {
+    if (response.gameItemBalanceChanges?.length) {
       logger.info(
-        `gameItemBalanceChanges => ${JSON.stringify(response.gameItemBalanceChanges)}`
+        `gameItemBalanceChanges: ${JSON.stringify(response.gameItemBalanceChanges)}`
       );
     }
-
     return response;
   }
 
   /**
-   * Shortcut for using an item (e.g., "use_item" action),
-   * which typically includes data.itemId and data.index.
-   *
-   * For example:
-   *   useItem({
-   *     actionToken: 1744022175757,
-   *     dungeonId: 0,
-   *     data: { itemId: 157, index: 1 }
-   *   });
+   * Uses an item (e.g. "use_item" action with itemId, index).
    */
   public async useItem(payload: ActionPayload): Promise<ActionResponse> {
-    logger.info(`Using item -> itemId: ${payload.data?.itemId}`);
+    logger.info(`Using item. ID: ${payload.data?.itemId}`);
     const endpoint = "/api/game/dungeon/action";
 
-    const finalActionToken = payload.actionToken ?? this.getActionToken() ?? "";
+    const finalToken = payload.actionToken ?? this.currentActionToken ?? "";
     const body = {
       action: "use_item",
-      actionToken: finalActionToken,
+      actionToken: finalToken,
       dungeonId: payload.dungeonId,
-      data: payload.data, // { itemId, index, consumables? etc. }
+      data: payload.data,
     };
 
     const response = await this.httpClient.post<ActionResponse>(endpoint, body);
-
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
-      logger.info(`Updated action token -> ${response.actionToken}`);
+      logger.info(`Updated action token: ${response.actionToken}`);
     }
-    if (
-      response.gameItemBalanceChanges &&
-      response.gameItemBalanceChanges.length > 0
-    ) {
+    if (response.gameItemBalanceChanges?.length) {
       logger.info(
-        `gameItemBalanceChanges => ${JSON.stringify(response.gameItemBalanceChanges)}`
+        `gameItemBalanceChanges: ${JSON.stringify(response.gameItemBalanceChanges)}`
       );
     }
-
     return response;
   }
 
   /**
-   * Get the user's ROMs, which can show energy/dust/shard stats.
+   * Retrieves all ROMs associated with the given address.
    */
   public async getUserRoms(address: string): Promise<GetUserRomsResponse> {
-    logger.info(`Fetching ROMs for address: ${address}`);
+    logger.info(`Fetching user ROMs for address: ${address}`);
     const endpoint = `/api/roms/player/${address}`;
-    return await this.httpClient.get<GetUserRomsResponse>(endpoint);
+    return this.httpClient.get<GetUserRomsResponse>(endpoint);
   }
 
   /**
-   * Fetch the current dungeon state. If "run" is null, user is not in a run.
+   * Fetches the current dungeon state. If run=null, not in a run.
    */
   public async fetchDungeonState(): Promise<GetDungeonStateResponse> {
-    logger.info("Fetching current dungeon state...");
+    logger.info("Fetching dungeon state...");
     const endpoint = "/api/game/dungeon/state";
-    return await this.httpClient.get<GetDungeonStateResponse>(endpoint);
+    return this.httpClient.get<GetDungeonStateResponse>(endpoint);
   }
 
   /**
-   * Fetch all game items from /api/indexer/gameitems.
-   * This helps to display the docId -> itemName mapping,
-   * e.g. docId=157 => "Mid Armor Juice".
+   * Retrieves all available game items from the indexer.
    */
   public async getAllGameItems(): Promise<GetAllGameItemsResponse> {
     logger.info("Fetching all game items...");
     const endpoint = "/api/indexer/gameitems";
-    return await this.httpClient.get<GetAllGameItemsResponse>(endpoint);
+    return this.httpClient.get<GetAllGameItemsResponse>(endpoint);
   }
 
   /**
-   * Fetch all enemies from /api/indexer/enemies.
-   * For potential reference or display. E.g. "Enemy#5 => Paladin"
+   * Retrieves all enemies from the indexer.
    */
   public async getAllEnemies(): Promise<GetAllEnemiesResponse> {
-    logger.info("Fetching all enemies...");
+    logger.info("Fetching enemies...");
     const endpoint = "/api/indexer/enemies";
-    return await this.httpClient.get<GetAllEnemiesResponse>(endpoint);
+    return this.httpClient.get<GetAllEnemiesResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves the wallet address and a flag indicating if the user can enter the game.
+   */
+  public async getUserMe(): Promise<GetUserMeResponse> {
+    logger.info("Fetching /api/user/me");
+    const endpoint = "/api/user/me";
+    return this.httpClient.get<GetUserMeResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves all 'noob' heroes for the given address.
+   */
+  public async getNoobs(address: string): Promise<GetNoobsResponse> {
+    logger.info(`Fetching noobs for: ${address}`);
+    const endpoint = `/api/indexer/player/noobs/${address}`;
+    return this.httpClient.get<GetNoobsResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves all usernames (GigaName NFTs) for the given address.
+   */
+  public async getUsernames(address: string): Promise<GetUsernamesResponse> {
+    logger.info(`Fetching usernames for: ${address}`);
+    const endpoint = `/api/indexer/player/usernames/${address}`;
+    return this.httpClient.get<GetUsernamesResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves faction info (e.g. faction ID) for the given address.
+   */
+  public async getFaction(address: string): Promise<GetFactionResponse> {
+    logger.info(`Fetching faction for: ${address}`);
+    const endpoint = `/api/factions/player/${address}`;
+    return this.httpClient.get<GetFactionResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves balances of various items for the given address.
+   */
+  public async getUserBalances(address: string): Promise<GetBalancesResponse> {
+    logger.info(`Fetching user balances for: ${address}`);
+    const endpoint = `/api/importexport/balances/${address}`;
+    return this.httpClient.get<GetBalancesResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves hero's skill progress and level, given a noobId.
+   */
+  public async getHeroSkillsProgress(
+    noobId: string | number
+  ): Promise<GetSkillsProgressResponse> {
+    logger.info(`Fetching skill progress for noobId: ${noobId}`);
+    const endpoint = `/api/offchain/skills/progress/${noobId}`;
+    return this.httpClient.get<GetSkillsProgressResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves consumable items the user holds, from the indexer.
+   */
+  public async getConsumables(
+    address: string
+  ): Promise<GetConsumablesResponse> {
+    logger.info(`Fetching consumables for: ${address}`);
+    const endpoint = `/api/indexer/player/gameitems/${address}`;
+    return this.httpClient.get<GetConsumablesResponse>(endpoint);
   }
 }

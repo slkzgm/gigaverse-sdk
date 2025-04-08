@@ -1,7 +1,7 @@
 // path: src/client/types/game.ts
 
 /**
- * Shared game-related types (entities, players, items, etc.).
+ * Type definitions for players, runs, equipment, items, etc.
  */
 
 export interface PlayerStats {
@@ -38,7 +38,7 @@ export interface Equipment {
 }
 
 export interface Player {
-  id: string; // "0x...." for user, or "Enemy Room #", etc.
+  id: string;
   rock: PlayerStats;
   paper: PlayerStats;
   scissor: PlayerStats;
@@ -48,7 +48,7 @@ export interface Player {
   lastMove: string;
   thisPlayerWin: boolean;
   otherPlayerWin: boolean;
-  _id: string; // DB or doc ID
+  _id: string;
 }
 
 export interface LootOption {
@@ -79,7 +79,7 @@ export interface Entity {
   docId: string;
   COMPLETE_CID: boolean;
   LEVEL_CID: number;
-  GAME_ITEM_ID_CID_array: any[]; // e.g. [156, 157] to track item IDs
+  GAME_ITEM_ID_CID_array: any[];
   ID_CID: string;
   PLAYER_CID: string;
   ROOM_NUM_CID: number;
@@ -96,9 +96,6 @@ export interface GameItemBalanceChange {
   amount: number;
 }
 
-/**
- * Represents a single game item from /api/indexer/gameitems
- */
 export interface GameItemEntity {
   docId: string;
   tableName: string;
@@ -110,21 +107,18 @@ export interface GameItemEntity {
   BURN_COUNT_CID?: number;
   IS_SOULBOUND_CID?: boolean;
   OWNER_CID?: string;
-  ID_CID?: string; // for docId=0 or docId=1, etc.
-  ADDRESS_CID?: string; // contract address if relevant
+  ID_CID?: string;
+  ADDRESS_CID?: string;
   CONTRACT_URI_CID?: string;
   BASE_URI_CID?: string;
 }
 
-/**
- * Represents a single enemy entity from /api/indexer/enemies
- */
 export interface EnemyEntity {
-  docId: string; // e.g. "Enemy#1"
-  ID_CID: string; // e.g. "1"
+  docId: string;
+  ID_CID: string;
   EQUIPMENT_HEAD_CID: number;
   EQUIPMENT_BODY_CID: number;
-  NAME_CID: string; // e.g. "Red Robe"
+  NAME_CID: string;
   LOOT_ID_CID: number;
-  MOVE_STATS_CID_array: number[]; // e.g. [4,0,0,4,2,2,4,2]
+  MOVE_STATS_CID_array: number[];
 }

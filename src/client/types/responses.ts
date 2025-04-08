@@ -1,5 +1,9 @@
 // path: src/client/types/responses.ts
 
+/**
+ * Response objects for each endpoint: run data, items, enemies, etc.
+ */
+
 import {
   Entity,
   RunData,
@@ -8,10 +12,6 @@ import {
   EnemyEntity,
 } from "./game";
 
-/**
- * Common base for response objects.
- * Some fields (like `data`) vary depending on the operation.
- */
 export interface BaseResponse<T = any> {
   success: boolean;
   message: string;
@@ -20,41 +20,25 @@ export interface BaseResponse<T = any> {
   gameItemBalanceChanges?: GameItemBalanceChange[];
 }
 
-/**
- * Claim Energy
- */
 export interface ClaimEnergyResponse {
   success: boolean;
 }
 
-/**
- * Start Run
- */
 export interface StartRunResponseData {
   run: RunData;
   entity: Entity;
 }
 export type StartRunResponse = BaseResponse<StartRunResponseData>;
 
-/**
- * Any typical "action" in the run, e.g. RPS, loot, end-of-room, or item usage.
- */
 export interface ActionResponseData {
   run: RunData;
   entity: Entity;
 }
 export type ActionResponse = BaseResponse<ActionResponseData>;
 
-/**
- * /api/roms/player/:address
- */
 export interface GetUserRomsResponse {
   entities: RomEntity[];
 }
-
-/**
- * A single ROM from "entities"
- */
 export interface RomEntity {
   _id: string;
   docId: string;
@@ -95,9 +79,6 @@ export interface RomEntity {
   };
 }
 
-/**
- * /api/game/dungeon/state
- */
 export interface GetDungeonStateResponse {
   success: boolean;
   message: string;
@@ -107,16 +88,101 @@ export interface GetDungeonStateResponse {
   };
 }
 
-/**
- * All game items from /api/indexer/gameitems
- */
 export interface GetAllGameItemsResponse {
   entities: GameItemEntity[];
 }
 
-/**
- * All enemies from /api/indexer/enemies
- */
 export interface GetAllEnemiesResponse {
   entities: EnemyEntity[];
+}
+
+/* Additional responses for the new endpoints below */
+
+export interface GetUserMeResponse {
+  address: string;
+  canEnterGame: boolean;
+}
+
+export interface GetNoobsResponse {
+  entities: NoobEntity[];
+}
+export interface NoobEntity {
+  docId: string;
+  tableName: string;
+  LEVEL_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  IS_NOOB_CID: boolean;
+  LAST_TRANSFER_TIME_CID?: number;
+  INITIALIZED_CID?: boolean;
+  OWNER_CID: string;
+}
+
+export interface GetUsernamesResponse {
+  entities: UsernameEntity[];
+}
+export interface UsernameEntity {
+  docId: string;
+  tableName: string;
+  LAST_TRANSFER_TIME_CID?: number;
+  createdAt: string;
+  updatedAt: string;
+  NAME_CID: string;
+  OWNER_CID: string;
+  INITIALIZED_CID?: boolean;
+  IS_GIGA_NAME_CID?: boolean;
+}
+
+export interface GetFactionResponse {
+  entities: FactionEntity[];
+}
+export interface FactionEntity {
+  _id: string;
+  docId: string;
+  FACTION_CID: number;
+  NOOB_TOKEN_CID: number;
+  PLAYER_CID: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetBalancesResponse {
+  entities: BalanceEntity[];
+}
+export interface BalanceEntity {
+  _id: string;
+  docId: string;
+  PLAYER_CID: string;
+  ID_CID: string;
+  BALANCE_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface GetSkillsProgressResponse {
+  entities: SkillsProgressEntity[];
+}
+export interface SkillsProgressEntity {
+  _id: string;
+  docId: string;
+  LEVEL_CID: number;
+  NOOB_TOKEN_CID: number;
+  SKILL_CID: number;
+  LEVEL_CID_array?: (number | null)[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetConsumablesResponse {
+  entities: ConsumableEntity[];
+}
+export interface ConsumableEntity {
+  docId: string;
+  tableName: string;
+  PLAYER_CID: string;
+  ID_CID: string;
+  BALANCE_CID: number;
+  createdAt: string;
+  updatedAt: string;
 }

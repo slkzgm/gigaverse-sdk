@@ -3,8 +3,7 @@
 import { logger } from "../utils/logger";
 
 /**
- * Simple abstraction over fetch-based requests.
- * We store baseUrl and authToken so you can re-use this client easily.
+ * Minimal HTTP client that wraps fetch calls with logging.
  */
 export class HttpClient {
   private readonly baseUrl: string;
@@ -20,10 +19,7 @@ export class HttpClient {
   }
 
   /**
-   * POST request wrapper:
-   * - logs request
-   * - handles JSON parse & error
-   * - returns typed response data
+   * Sends a POST request with the current auth token.
    */
   public async post<T>(
     endpoint: string,
@@ -46,15 +42,11 @@ export class HttpClient {
       throw new Error(`POST ${endpoint} failed -> ${response.status}`);
     }
 
-    const data = (await response.json()) as T;
-    return data;
+    return (await response.json()) as T;
   }
 
   /**
-   * GET request wrapper:
-   * - logs request
-   * - handles JSON parse & error
-   * - returns typed response data
+   * Sends a GET request with the current auth token.
    */
   public async get<T>(endpoint: string): Promise<T> {
     logger.info(`GET -> ${endpoint}`);
@@ -73,7 +65,6 @@ export class HttpClient {
       throw new Error(`GET ${endpoint} failed -> ${response.status}`);
     }
 
-    const data = (await response.json()) as T;
-    return data;
+    return (await response.json()) as T;
   }
 }
