@@ -24,6 +24,7 @@ import {
   GetBalancesResponse,
   GetSkillsProgressResponse,
   GetConsumablesResponse,
+  GetAllSkillsResponse,
 } from "./types/responses";
 
 /**
@@ -247,5 +248,14 @@ export class GameClient {
     logger.info(`Fetching consumables for: ${address}`);
     const endpoint = `/api/indexer/player/gameitems/${address}`;
     return this.httpClient.get<GetConsumablesResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves global skill definitions from /api/offchain/skills.
+   */
+  public async getAllSkills(): Promise<GetAllSkillsResponse> {
+    logger.info("Fetching skill definitions...");
+    const endpoint = "/api/offchain/skills";
+    return this.httpClient.get<GetAllSkillsResponse>(endpoint);
   }
 }

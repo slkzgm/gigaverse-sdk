@@ -96,8 +96,6 @@ export interface GetAllEnemiesResponse {
   entities: EnemyEntity[];
 }
 
-/* Additional responses for the new endpoints below */
-
 export interface GetUserMeResponse {
   address: string;
   canEnterGame: boolean;
@@ -185,4 +183,33 @@ export interface ConsumableEntity {
   BALANCE_CID: number;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * Represents the skill definitions fetched from /api/offchain/skills
+ */
+export interface GetAllSkillsResponse {
+  entities: SkillDefinition[];
+}
+
+export interface SkillDefinition {
+  _id: string;
+  docId: string; // e.g. "1"
+  NAME_CID: string; // e.g. "SKILL#Dungeoneering"
+  LEVEL_CID: number; // e.g. 60
+  GAME_ITEM_ID_CID: number;
+  UINT256_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  stats: SkillStatDefinition[];
+}
+
+export interface SkillStatDefinition {
+  id: number;
+  name: string;
+  desc: string;
+  levelsPerIncrease: number;
+  increaseKey: string; // e.g. "rock", "paper", "scissors", "maxHealth", "maxShield"
+  increaseIndex: number; // -1 if not tied to a substat index
+  increaseValue: number; // how much each increment adds
 }
