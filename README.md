@@ -18,7 +18,7 @@ pnpm add gigaverse-sdk
 import { GameClient } from "gigaverse-sdk";
 
 // Initialize the client with your API base URL and auth token
-const client = new GameClient("https://api.gigaverse.com", "your-auth-token");
+const client = new GameClient("https://gigaverse.io", "your-auth-token");
 
 // Example: Start a new run
 async function startGameRun() {

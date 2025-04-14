@@ -5,17 +5,16 @@
  */
 
 import {
-  Entity,
-  RunData,
   GameItemBalanceChange,
   GameItemEntity,
   EnemyEntity,
+  DungeonData,
 } from "./game";
 
-export interface BaseResponse<T = any> {
+export interface BaseResponse {
   success: boolean;
   message: string;
-  data?: T;
+  data?: DungeonData;
   actionToken?: string | number;
   gameItemBalanceChanges?: GameItemBalanceChange[];
 }
@@ -23,18 +22,6 @@ export interface BaseResponse<T = any> {
 export interface ClaimEnergyResponse {
   success: boolean;
 }
-
-export interface StartRunResponseData {
-  run: RunData;
-  entity: Entity;
-}
-export type StartRunResponse = BaseResponse<StartRunResponseData>;
-
-export interface ActionResponseData {
-  run: RunData;
-  entity: Entity;
-}
-export type ActionResponse = BaseResponse<ActionResponseData>;
 
 export interface GetUserRomsResponse {
   entities: RomEntity[];
@@ -76,15 +63,6 @@ export interface RomEntity {
     energyCollectable: number;
     shardCollectable: number;
     dustCollectable: number;
-  };
-}
-
-export interface GetDungeonStateResponse {
-  success: boolean;
-  message: string;
-  data: {
-    run: RunData | null;
-    entity: Entity | null;
   };
 }
 

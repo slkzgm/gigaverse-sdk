@@ -10,13 +10,10 @@ import {
 } from "./types/requests";
 
 import {
-  ActionResponse,
   ClaimEnergyResponse,
   GetAllEnemiesResponse,
   GetAllGameItemsResponse,
-  GetDungeonStateResponse,
   GetUserRomsResponse,
-  StartRunResponse,
   GetUserMeResponse,
   GetNoobsResponse,
   GetUsernamesResponse,
@@ -25,6 +22,7 @@ import {
   GetSkillsProgressResponse,
   GetConsumablesResponse,
   GetAllSkillsResponse,
+  BaseResponse,
 } from "./types/responses";
 
 /**
@@ -69,7 +67,7 @@ export class GameClient {
   /**
    * Starts a dungeon run, storing the returned actionToken automatically.
    */
-  public async startRun(payload: StartRunPayload): Promise<StartRunResponse> {
+  public async startRun(payload: StartRunPayload): Promise<BaseResponse> {
     logger.info("Starting dungeon run...");
     const endpoint = "/api/game/dungeon/action";
     const body = {
@@ -79,10 +77,7 @@ export class GameClient {
       data: payload.data,
     };
 
-    const response = await this.httpClient.post<StartRunResponse>(
-      endpoint,
-      body
-    );
+    const response = await this.httpClient.post<BaseResponse>(endpoint, body);
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
       logger.info(`New action token: ${response.actionToken}`);
@@ -94,7 +89,7 @@ export class GameClient {
    * Performs a move or loot action.
    * Action can be "rock", "paper", "scissor", "loot_one", etc.
    */
-  public async playMove(payload: ActionPayload): Promise<ActionResponse> {
+  public async playMove(payload: ActionPayload): Promise<BaseResponse> {
     logger.info(`Performing action: ${payload.action}`);
     const endpoint = "/api/game/dungeon/action";
 
@@ -106,7 +101,7 @@ export class GameClient {
       data: payload.data,
     };
 
-    const response = await this.httpClient.post<ActionResponse>(endpoint, body);
+    const response = await this.httpClient.post<BaseResponse>(endpoint, body);
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
       logger.info(`Updated action token: ${response.actionToken}`);
@@ -122,7 +117,7 @@ export class GameClient {
   /**
    * Uses an item (e.g. "use_item" action with itemId, index).
    */
-  public async useItem(payload: ActionPayload): Promise<ActionResponse> {
+  public async useItem(payload: ActionPayload): Promise<BaseResponse> {
     logger.info(`Using item. ID: ${payload.data?.itemId}`);
     const endpoint = "/api/game/dungeon/action";
 
@@ -134,7 +129,7 @@ export class GameClient {
       data: payload.data,
     };
 
-    const response = await this.httpClient.post<ActionResponse>(endpoint, body);
+    const response = await this.httpClient.post<BaseResponse>(endpoint, body);
     if (response.actionToken) {
       this.setActionToken(response.actionToken);
       logger.info(`Updated action token: ${response.actionToken}`);
@@ -159,10 +154,10 @@ export class GameClient {
   /**
    * Fetches the current dungeon state. If run=null, not in a run.
    */
-  public async fetchDungeonState(): Promise<GetDungeonStateResponse> {
+  public async fetchDungeonState(): Promise<BaseResponse> {
     logger.info("Fetching dungeon state...");
     const endpoint = "/api/game/dungeon/state";
-    return this.httpClient.get<GetDungeonStateResponse>(endpoint);
+    return this.httpClient.get<BaseResponse>(endpoint);
   }
 
   /**

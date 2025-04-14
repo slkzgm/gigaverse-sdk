@@ -61,6 +61,11 @@ export interface LootOption {
   boonTypeString: string;
 }
 
+export interface DungeonData {
+  run: RunData | null;
+  entity: Entity | null;
+}
+
 export interface RunData {
   _id: string;
   DUNGEON_ID_CID: number;
