@@ -14,7 +14,7 @@ import {
 export interface BaseResponse {
   success: boolean;
   message: string;
-  data?: DungeonData;
+  data: DungeonData;
   actionToken?: string | number;
   gameItemBalanceChanges?: GameItemBalanceChange[];
 }
