@@ -91,6 +91,8 @@ export interface Entity {
   NOOB_TOKEN_CID: number;
   DUNGEON_ID_CID: number;
   ENEMY_CID: number;
+  IS_JUICED_CID: number;
+  MULTIPLIER_CID: number;
   createdAt: string;
   updatedAt: string;
   __v: number;

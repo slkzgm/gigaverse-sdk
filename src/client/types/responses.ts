@@ -94,6 +94,27 @@ export interface NoobEntity {
   OWNER_CID: string;
 }
 
+export interface GetEnergyResponse {
+  entities: EnergyEntity;
+}
+export interface EnergyEntity {
+  docId: string;
+  createdAt: string;
+  updatedAt: string;
+  ENERGY_CID: number;
+  TIMESTAMP_CID: number;
+  parsedData: EnergyParsedData;
+}
+export interface EnergyParsedData {
+  energy: number;
+  energyValue: number;
+  maxEnergy: number;
+  regenPerSecond: number;
+  regenPerHour: number;
+  secondsSinceLastUpdate: number;
+  isPlayerJuiced: boolean;
+}
+
 export interface GetUsernamesResponse {
   entities: UsernameEntity[];
 }
@@ -190,4 +211,54 @@ export interface SkillStatDefinition {
   increaseKey: string; // e.g. "rock", "paper", "scissors", "maxHealth", "maxShield"
   increaseIndex: number; // -1 if not tied to a substat index
   increaseValue: number; // how much each increment adds
+}
+
+export interface GetJuiceStateResponse {
+  juiceData: JuiceDataEntity;
+  purchases: JuicePurchaseEntity[];
+  referrals: any[];
+  listings: JuiceListingEntity[];
+}
+export interface JuiceDataEntity {
+  _id: string;
+  docId: string;
+  tableName: string;
+  TIMESTAMP_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  isJuiced: boolean;
+  juicedSeconds: number;
+}
+export interface JuicePurchaseEntity {
+  _id: string;
+  docId: string;
+  tableName: string;
+  TIMESTAMP_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  ID_CID: string;
+  PLAYER_CID: string;
+  ETH_MINT_PRICE_CID: number;
+  UINT256_CID: number;
+  analyticsProcessed: boolean;
+  importProcessed: boolean;
+  importProcessedAt: string;
+  NAME_CID: string;
+  LOOT_ID_CID_array: number[];
+  LOOT_AMOUNT_CID_array: number[];
+}
+export interface JuiceListingEntity {
+  _id: string;
+  docId: string;
+  tableName: string;
+  ETH_MINT_PRICE_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  TIME_BETWEEN_CID: number;
+  NAME_CID: string;
+  LOOT_ID_CID_array: number[];
+  LOOT_AMOUNT_CID_array: number[];
+  START_TIMESTAMP_CID: number;
+  END_TIMESTAMP_CID: number;
+  OFFERING_NAME: string;
 }

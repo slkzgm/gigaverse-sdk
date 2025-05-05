@@ -13,6 +13,7 @@ import {
   ClaimEnergyResponse,
   GetAllEnemiesResponse,
   GetAllGameItemsResponse,
+  GetEnergyResponse,
   GetUserRomsResponse,
   GetUserMeResponse,
   GetNoobsResponse,
@@ -23,6 +24,7 @@ import {
   GetConsumablesResponse,
   GetAllSkillsResponse,
   BaseResponse,
+  GetJuiceStateResponse,
 } from "./types/responses";
 
 /**
@@ -203,6 +205,18 @@ export class GameClient {
     logger.info(`Fetching usernames for: ${address}`);
     const endpoint = `/api/indexer/player/usernames/${address}`;
     return this.httpClient.get<GetUsernamesResponse>(endpoint);
+  }
+
+  public async getEnergy(address: string): Promise<GetEnergyResponse> {
+    logger.info(`Fetching energy for: ${address}`);
+    const endpoint = `/api/offchain/player/energy/${address}`;
+    return this.httpClient.get<GetEnergyResponse>(endpoint);
+  }
+
+  public async getJuiceState(address: string): Promise<GetJuiceStateResponse> {
+    logger.info(`Fetching juice state for: ${address}`);
+    const endpoint = `/api/gigajuice/player/${address}`;
+    return this.httpClient.get<GetJuiceStateResponse>(endpoint);
   }
 
   /**

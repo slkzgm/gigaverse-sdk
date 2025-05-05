@@ -13,6 +13,7 @@ export interface StartRunPayload {
   actionToken: string | number;
   dungeonId: number;
   data: {
+    isJuiced: boolean;
     consumables: any[];
     itemId: number;
     index: number;
