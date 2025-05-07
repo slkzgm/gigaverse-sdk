@@ -17,8 +17,6 @@ import {
   GetEnergyResponse,
   GetUserRomsResponse,
   GetUserMeResponse,
-  GetNoobsResponse,
-  GetUsernamesResponse,
   GetFactionResponse,
   GetBalancesResponse,
   GetSkillsProgressResponse,
@@ -29,6 +27,7 @@ import {
   GetOffchainStaticResponse,
   GetDungeonTodayResponse,
   LevelUpSkillResponse,
+  GetAccountResponse,
 } from "./types/responses";
 
 /**
@@ -193,24 +192,6 @@ export class GameClient {
     return this.httpClient.get<GetUserMeResponse>(endpoint);
   }
 
-  /**
-   * Retrieves all 'noob' heroes for the given address.
-   */
-  public async getNoobs(address: string): Promise<GetNoobsResponse> {
-    logger.info(`Fetching noobs for: ${address}`);
-    const endpoint = `/api/indexer/player/noobs/${address}`;
-    return this.httpClient.get<GetNoobsResponse>(endpoint);
-  }
-
-  /**
-   * Retrieves all usernames (GigaName NFTs) for the given address.
-   */
-  public async getUsernames(address: string): Promise<GetUsernamesResponse> {
-    logger.info(`Fetching usernames for: ${address}`);
-    const endpoint = `/api/indexer/player/usernames/${address}`;
-    return this.httpClient.get<GetUsernamesResponse>(endpoint);
-  }
-
   public async getEnergy(address: string): Promise<GetEnergyResponse> {
     logger.info(`Fetching energy for: ${address}`);
     const endpoint = `/api/offchain/player/energy/${address}`;
@@ -310,5 +291,15 @@ export class GameClient {
     );
 
     return response;
+  }
+
+  /**
+   * Retrieves aggregated account data: the main account entity,
+   * any usernames, the single noob (if any), and checkpoint progress states.
+   */
+  public async getAccount(address: string): Promise<GetAccountResponse> {
+    logger.info(`Fetching /api/account/${address} ...`);
+    const endpoint = `/api/account/${address}`;
+    return this.httpClient.get<GetAccountResponse>(endpoint);
   }
 }

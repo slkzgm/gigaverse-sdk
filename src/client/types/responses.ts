@@ -79,21 +79,6 @@ export interface GetUserMeResponse {
   canEnterGame: boolean;
 }
 
-export interface GetNoobsResponse {
-  entities: NoobEntity[];
-}
-export interface NoobEntity {
-  docId: string;
-  tableName: string;
-  LEVEL_CID: number;
-  createdAt: string;
-  updatedAt: string;
-  IS_NOOB_CID: boolean;
-  LAST_TRANSFER_TIME_CID?: number;
-  INITIALIZED_CID?: boolean;
-  OWNER_CID: string;
-}
-
 export interface GetEnergyResponse {
   entities: EnergyEntity;
 }
@@ -113,21 +98,6 @@ export interface EnergyParsedData {
   regenPerHour: number;
   secondsSinceLastUpdate: number;
   isPlayerJuiced: boolean;
-}
-
-export interface GetUsernamesResponse {
-  entities: UsernameEntity[];
-}
-export interface UsernameEntity {
-  docId: string;
-  tableName: string;
-  LAST_TRANSFER_TIME_CID?: number;
-  createdAt: string;
-  updatedAt: string;
-  NAME_CID: string;
-  OWNER_CID: string;
-  INITIALIZED_CID?: boolean;
-  IS_GIGA_NAME_CID?: boolean;
 }
 
 export interface GetFactionResponse {
@@ -184,9 +154,6 @@ export interface ConsumableEntity {
   updatedAt: string;
 }
 
-/**
- * Represents the skill definitions fetched from /api/offchain/skills
- */
 export interface GetAllSkillsResponse {
   entities: SkillDefinition[];
 }
@@ -353,11 +320,57 @@ export interface TodayDungeonDataEntity {
   juicedMaxRunsPerDay: number; // e.g. 12
 }
 
-/**
- * Response from /api/game/skill/levelup.
- */
 export interface LevelUpSkillResponse {
   success: boolean;
   message: string;
   data: SkillsProgressEntity;
+}
+
+export interface GetAccountResponse {
+  accountEntity: AccountEntity;
+  usernames: UsernameEntity[];
+  noob: NoobEntity | null;
+  checkpointProgress: CheckpointProgressEntity[];
+}
+export interface AccountEntity {
+  _id: string;
+  docId: string;
+  tableName: string; // e.g. "AccountSystem"
+  NOOB_TOKEN_CID?: number;
+  createdAt: string;
+  updatedAt: string;
+  GIGA_NAME_TOKENDID_CID?: string; // e.g. "3101953415271485..."
+}
+export interface UsernameEntity {
+  docId: string;
+  tableName: string;
+  LAST_TRANSFER_TIME_CID?: number;
+  createdAt: string;
+  updatedAt: string;
+  NAME_CID: string;
+  OWNER_CID: string;
+  INITIALIZED_CID?: boolean;
+  IS_GIGA_NAME_CID?: boolean;
+}
+export interface CheckpointProgressEntity {
+  _id: string;
+  docId: string; // e.g. "CHECKPOINT_PROGRESS#..."
+  COMPLETE_CID: boolean;
+  COMPLETIONS_CID: number;
+  ID_CID: string; // ID of the checkpoint
+  PLAYER_CID: string; // e.g. "0x700d7b774f5af65d..."
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
+export interface NoobEntity {
+  docId: string;
+  tableName: string;
+  LEVEL_CID: number;
+  createdAt: string;
+  updatedAt: string;
+  IS_NOOB_CID: boolean;
+  LAST_TRANSFER_TIME_CID?: number;
+  INITIALIZED_CID?: boolean;
+  OWNER_CID: string;
 }
