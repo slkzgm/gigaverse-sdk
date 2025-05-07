@@ -80,7 +80,7 @@ export interface GetUserMeResponse {
 }
 
 export interface GetEnergyResponse {
-  entities: EnergyEntity;
+  entities: EnergyEntity[];
 }
 export interface EnergyEntity {
   docId: string;
