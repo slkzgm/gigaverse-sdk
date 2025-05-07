@@ -6,6 +6,7 @@ import { logger } from "../utils/logger";
 import {
   ActionPayload,
   ClaimEnergyPayload,
+  LevelUpSkillPayload,
   StartRunPayload,
 } from "./types/requests";
 
@@ -25,10 +26,17 @@ import {
   GetAllSkillsResponse,
   BaseResponse,
   GetJuiceStateResponse,
+  GetOffchainStaticResponse,
+  GetDungeonTodayResponse,
+  LevelUpSkillResponse,
 } from "./types/responses";
 
+/**
+ * Main SDK class exposing methods for dungeon runs, user data, items, etc.
+ */
 export class GameClient {
   private httpClient: HttpClient;
+  private currentActionToken: string | number | null = null;
 
   constructor(baseUrl: string, authToken: string) {
     this.httpClient = new HttpClient(baseUrl, authToken);
@@ -36,6 +44,14 @@ export class GameClient {
 
   public setAuthToken(newToken: string) {
     this.httpClient.setAuthToken(newToken);
+  }
+
+  public getActionToken(): string | number | null {
+    return this.currentActionToken;
+  }
+
+  public setActionToken(token: string | number) {
+    this.currentActionToken = token;
   }
 
   /**
@@ -55,38 +71,47 @@ export class GameClient {
   }
 
   /**
-   * Starts a dungeon run.
+   * Starts a dungeon run, storing the returned actionToken automatically.
    */
   public async startRun(payload: StartRunPayload): Promise<BaseResponse> {
     logger.info("Starting dungeon run...");
     const endpoint = "/api/game/dungeon/action";
-
     const body = {
       action: "start_run",
-      actionToken: Date.now().toString(),
-      dungeonId: payload.dungeonId,
-      data: payload.data,
-    };
-
-    return this.httpClient.post<BaseResponse>(endpoint, body);
-  }
-
-  /**
-   * Performs a move or loot action (e.g. "rock", "paper", "scissor", "loot_one").
-   */
-  public async playMove(payload: ActionPayload): Promise<BaseResponse> {
-    logger.info(`Performing action: ${payload.action}`);
-    const endpoint = "/api/game/dungeon/action";
-
-    const body = {
-      action: payload.action,
-      actionToken: Date.now().toString(),
+      actionToken: payload.actionToken,
       dungeonId: payload.dungeonId,
       data: payload.data,
     };
 
     const response = await this.httpClient.post<BaseResponse>(endpoint, body);
+    if (response.actionToken) {
+      this.setActionToken(response.actionToken);
+      logger.info(`New action token: ${response.actionToken}`);
+    }
+    return response;
+  }
 
+  /**
+   * Performs a move or loot action.
+   * Action can be "rock", "paper", "scissor", "loot_one", etc.
+   */
+  public async playMove(payload: ActionPayload): Promise<BaseResponse> {
+    logger.info(`Performing action: ${payload.action}`);
+    const endpoint = "/api/game/dungeon/action";
+
+    const finalToken = payload.actionToken ?? this.currentActionToken ?? "";
+    const body = {
+      action: payload.action,
+      actionToken: finalToken,
+      dungeonId: payload.dungeonId,
+      data: payload.data,
+    };
+
+    const response = await this.httpClient.post<BaseResponse>(endpoint, body);
+    if (response.actionToken) {
+      this.setActionToken(response.actionToken);
+      logger.info(`Updated action token: ${response.actionToken}`);
+    }
     if (response.gameItemBalanceChanges?.length) {
       logger.info(
         `gameItemBalanceChanges: ${JSON.stringify(response.gameItemBalanceChanges)}`
@@ -102,15 +127,19 @@ export class GameClient {
     logger.info(`Using item. ID: ${payload.data?.itemId}`);
     const endpoint = "/api/game/dungeon/action";
 
+    const finalToken = payload.actionToken ?? this.currentActionToken ?? "";
     const body = {
       action: "use_item",
-      actionToken: Date.now().toString(),
+      actionToken: finalToken,
       dungeonId: payload.dungeonId,
       data: payload.data,
     };
 
     const response = await this.httpClient.post<BaseResponse>(endpoint, body);
-
+    if (response.actionToken) {
+      this.setActionToken(response.actionToken);
+      logger.info(`Updated action token: ${response.actionToken}`);
+    }
     if (response.gameItemBalanceChanges?.length) {
       logger.info(
         `gameItemBalanceChanges: ${JSON.stringify(response.gameItemBalanceChanges)}`
@@ -241,5 +270,45 @@ export class GameClient {
     logger.info("Fetching skill definitions...");
     const endpoint = "/api/offchain/skills";
     return this.httpClient.get<GetAllSkillsResponse>(endpoint);
+  }
+
+  /**
+   * Fetches offchain static data, including constants, enemies, recipes, game items, etc.
+   */
+  public async getOffchainStatic(): Promise<GetOffchainStaticResponse> {
+    logger.info("Fetching /api/offchain/static...");
+    const endpoint = "/api/offchain/static";
+    return this.httpClient.get<GetOffchainStaticResponse>(endpoint);
+  }
+
+  /**
+   * Retrieves today's dungeon progress for the user, including daily run counts and dungeon data.
+   */
+  public async getDungeonToday(): Promise<GetDungeonTodayResponse> {
+    logger.info("Fetching /api/game/dungeon/today...");
+    const endpoint = "/api/game/dungeon/today";
+    return this.httpClient.get<GetDungeonTodayResponse>(endpoint);
+  }
+
+  /**
+   * Sends a request to level up a skill stat for a given hero.
+   */
+  public async levelUpSkill(
+    payload: LevelUpSkillPayload
+  ): Promise<LevelUpSkillResponse> {
+    logger.info(
+      `Leveling up skill -> skillId:${payload.skillId}, statId:${payload.statId}, noobId:${payload.noobId}`
+    );
+    const endpoint = "/api/game/skill/levelup";
+    const response = await this.httpClient.post<LevelUpSkillResponse>(
+      endpoint,
+      payload
+    );
+
+    logger.info(
+      `Skill level up complete. success: ${response.success}, message: ${response.message}`
+    );
+
+    return response;
   }
 }

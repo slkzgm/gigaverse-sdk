@@ -262,3 +262,102 @@ export interface JuiceListingEntity {
   END_TIMESTAMP_CID: number;
   OFFERING_NAME: string;
 }
+
+export interface GetOffchainStaticResponse {
+  constants: OffchainConstants;
+  enemies: EnemyEntity[]; // We reuse existing EnemyEntity
+  recipes: RecipeEntity[];
+  gameItems: OffchainGameItemEntity[];
+  checkpoints: CheckpointEntity[];
+}
+
+export interface OffchainConstants {
+  minTimeBetweenImports: number;
+  minTimeBetweenExports: number;
+  maxEnergy: number;
+  energyRegenRate: number;
+  maxEnergyJuiced: number;
+  regenRateJuiced: number;
+  dungeonEnergyCost: number;
+}
+
+export interface RecipeEntity {
+  docId: string;
+  ID_CID: string;
+  NAME_CID: string;
+  FACTION_CID_array?: number[];
+  GEAR_TYPE_CID: number;
+  DURABILITY_CID: number;
+  TIER_CID: number;
+  UINT256_CID: number;
+  INPUT_NAMES_CID_array: string[];
+  INPUT_ID_CID_array: number[];
+  INPUT_AMOUNT_CID_array: number[];
+  LOOT_ID_CID_array: number[];
+  LOOT_AMOUNT_CID_array: number[];
+  LOOT_FULFILLER_ID_CID_array: string[];
+  TIME_BETWEEN_CID: number;
+  TAG_CID_array?: string[];
+  SUCCESS_RATE_CID: number;
+  COOLDOWN_CID: number;
+  MAX_COMPLETIONS_CID: number;
+  ENERGY_CID: number;
+}
+
+export interface OffchainGameItemEntity {
+  ID_CID: number;
+  docId: string;
+  NAME_CID: string;
+  DESCRIPTION_CID?: string;
+  RARITY_CID?: number;
+  RARITY_NAME?: string;
+  IMG_URL_CID?: string;
+  ICON_URL_CID?: string;
+  TYPE_CID?: string;
+  SPRITE_SHEET_URL_CID?: string;
+}
+
+export interface CheckpointEntity {
+  docId: string;
+  ID_CID: string;
+  NAME_CID: string;
+  DESCRIPTION_CID: string;
+  INPUT_ID_CID_array: number[];
+  INPUT_AMOUNT_CID_array: number[];
+  UINT256_CID_array: number[];
+  MAX_COMPLETIONS_CID: number;
+}
+
+export interface GetDungeonTodayResponse {
+  dayProgressEntities: DayProgressEntity[];
+  dungeonDataEntities: TodayDungeonDataEntity[];
+}
+export interface DayProgressEntity {
+  _id: string;
+  docId: string;
+  UINT256_CID: number;
+  ID_CID: string; // e.g. "1", "3"
+  TIMESTAMP_CID: number; // e.g. 20214
+  PLAYER_CID: string;
+  DOC_TYPE_CID: string; // e.g. "DayCount"
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+export interface TodayDungeonDataEntity {
+  ID_CID: number; // e.g. 1, 2, 3
+  NAME_CID: string; // e.g. "Dungetron 5000"
+  ENERGY_CID: number; // e.g. 40
+  UINT256_CID: number; // e.g. 10
+  CHECKPOINT_CID: number; // e.g. -1
+  juicedMaxRunsPerDay: number; // e.g. 12
+}
+
+/**
+ * Response from /api/game/skill/levelup.
+ */
+export interface LevelUpSkillResponse {
+  success: boolean;
+  message: string;
+  data: SkillsProgressEntity;
+}
