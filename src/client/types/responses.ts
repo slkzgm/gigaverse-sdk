@@ -19,7 +19,7 @@ export interface BaseResponse {
   gameItemBalanceChanges?: GameItemBalanceChange[];
 }
 
-export interface ClaimEnergyResponse {
+export interface ClaimRomResponse {
   success: boolean;
 }
 

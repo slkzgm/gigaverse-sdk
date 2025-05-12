@@ -4,7 +4,7 @@
  * Request payload definitions for core SDK methods.
  */
 
-export interface ClaimEnergyPayload {
+export interface ClaimRomPayload {
   romId: string;
   claimId: string;
 }

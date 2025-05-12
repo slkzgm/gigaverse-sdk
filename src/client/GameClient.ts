@@ -5,13 +5,13 @@ import { logger } from "../utils/logger";
 
 import {
   ActionPayload,
-  ClaimEnergyPayload,
+  ClaimRomPayload,
   LevelUpSkillPayload,
   StartRunPayload,
 } from "./types/requests";
 
 import {
-  ClaimEnergyResponse,
+  ClaimRomResponse,
   GetAllEnemiesResponse,
   GetAllGameItemsResponse,
   GetEnergyResponse,
@@ -56,12 +56,10 @@ export class GameClient {
   /**
    * Claims a resource like "energy", "shard", or "dust".
    */
-  public async claimEnergy(
-    payload: ClaimEnergyPayload
-  ): Promise<ClaimEnergyResponse> {
+  public async claimRom(payload: ClaimRomPayload): Promise<ClaimRomResponse> {
     logger.info("Claiming resource...");
     const endpoint = "/api/roms/factory/claim";
-    const response = await this.httpClient.post<ClaimEnergyResponse>(
+    const response = await this.httpClient.post<ClaimRomResponse>(
       endpoint,
       payload
     );
